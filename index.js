@@ -1,44 +1,24 @@
 "use strict";
 
-const execFile = require('child_process').execFile;
 const path = require("path");
+const omx = require('node-omxplayer');
 const connect = require("connect");
 const serveStatic = require("serve-static");
 const serveStaticFile = require("connect-static-file");
 const compression = require("compression");
 const app = connect();
 
-const omxplayer_process;
-const playaudio = (file) => {
-  if(omxplayer_process) {
-    omxplayer_process.kill('SIGKILL');
-    omxplayer_process = null;
-    console.log("first kill");
-  }
-  omxplayer_process = execFile('omxplayer', ['-o','local',file], (error, stdout, stderr) => {
-    if (error) {
-        console.error('stderr', stderr);
-        throw error;
-    }
-    console.log('stdout', stdout);
-  });
-  setTimeout(() => {
-    if(omxplayer_process) {
-      omxplayer_process.kill('SIGKILL');
-      omxplayer_process = null;
-      console.log("second kill");
-    }
-  }, 5000);
-}
-
+let player = omx('./audio/example.mp3');
+player.pause();
 setInterval(() => {
   try {
-    playaudio('./audio/example.mp3');
+    player.back600();
+    player.play();
   }
   catch(error) {
     console.error('stderr', error);
   }
-}, 6000);
+}, 5000);
 
 const PORT = 9000;
 const DIRECTORY = "public";
