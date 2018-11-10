@@ -11,8 +11,9 @@ const app = connect();
 const omxplayer_process;
 const playaudio = (file) => {
   if(omxplayer_process) {
-    omxplayer_process.kill('9');
+    omxplayer_process.kill('SIGKILL');
     omxplayer_process = null;
+    console.log("first kill");
   }
   omxplayer_process = execFile('omxplayer', ['-o','local',file], (error, stdout, stderr) => {
     if (error) {
@@ -20,13 +21,24 @@ const playaudio = (file) => {
         throw error;
     }
     console.log('stdout', stdout);
-    omxplayer_process = null;
   });
+  setTimeout(() => {
+    if(omxplayer_process) {
+      omxplayer_process.kill('SIGKILL');
+      omxplayer_process = null;
+      console.log("second kill");
+    }
+  }, 5000);
 }
 
 setInterval(() => {
-  playaudio('audio/example.mp3');
-}, 10000);
+  try {
+    playaudio('./audio/example.mp3');
+  }
+  catch(error) {
+    console.error('stderr', error);
+  }
+}, 6000);
 
 const PORT = 9000;
 const DIRECTORY = "public";
