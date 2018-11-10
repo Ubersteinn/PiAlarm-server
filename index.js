@@ -1,6 +1,7 @@
 "use strict";
 
 const path = require("path");
+const net = require("net");
 const omx = require('node-omxplayer');
 const connect = require("connect");
 const serveStatic = require("serve-static");
@@ -8,20 +9,14 @@ const serveStaticFile = require("connect-static-file");
 const compression = require("compression");
 const app = connect();
 
-let player = omx('./audio/example.mp3');
-player.pause();
-setInterval(() => {
-  try {
-    player.back600();
-    player.play();
-  }
-  catch(error) {
-    console.error('stderr', error);
-  }
-}, 5000);
+let player = omx('./audio/example.mp3','local',true,null,true);
+const togglePlayer = () => { if(player) player.play(); };
+setTimeout(() => {
+  togglePlayer();
+}, 10000);
 
-const PORT = 9000;
-const DIRECTORY = "public";
+const PORT = 4200;
+const DIRECTORY = "";
 const FILE = "index.html";
 const HOST = "0.0.0.0";
 
@@ -48,6 +43,13 @@ exports.start = function(options, _onStarted) {
   const server = app.listen(port, host, err =>
     onStarted(err, server.address())
   );
+
+  const playerServer = net.createServer((socket) => {
+    socket.write('Toggling player\r\n');
+    togglePlayer();
+    socket.pipe(socket);
+  });
+  playerServer.listen(4201, host);
 
   return server;
 };
