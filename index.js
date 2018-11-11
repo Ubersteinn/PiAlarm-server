@@ -51,7 +51,7 @@ exports.start = function(options, _onStarted) {
     // Listening message receiving event by client
     connection.on('message', (message) => {
       let m = message.utf8Data;
-      let playing = player.running;
+      let playing = player.playing;
       if(m == 'play' && !playing) {
         player.play();
       }
@@ -61,8 +61,7 @@ exports.start = function(options, _onStarted) {
       console.log('Received Message: ' + m);
 
       // Sending response to client's message
-      connection.sendUTF('Alarm was previously ' + (playing ? 'playing' : 'paused') +
-        ' and now is ' + (player.running ? 'playing' : 'paused'));
+      connection.sendUTF(player.playing ? 'playing' : 'paused');
     });
     
     connection.on('close', (reasonCode, description) => {
