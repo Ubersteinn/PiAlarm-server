@@ -1,7 +1,7 @@
 "use strict";
 
 const path = require("path");
-const websocket = require("ws");
+const websocket = require("websocket");
 const omx = require('node-omxplayer');
 const connect = require("connect");
 const serveStatic = require("serve-static");
@@ -44,7 +44,7 @@ exports.start = function(options, _onStarted) {
     onStarted(err, server.address())
   );
   
-  const playerServer = new websocket.Server({ port: 4201 });
+  const playerServer = new websocket.server({ httpServer: server, port: 4201 });
   playerServer.on('connection', ws => {
     ws.on('message', message => {
       togglePlayer();

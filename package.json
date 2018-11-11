@@ -29,7 +29,8 @@
     "connect-static-file": "2.0.0",
     "minimist": "1.2.0",
     "node-omxplayer": "https://github.com/Ubersteinn/node-omxplayer.git",
-    "serve-static": "^1.13.2"
+    "serve-static": "^1.13.2",
+    "websocket": "^1.0.28"
   },
   "devDependencies": {
     "@tap-format/spec": "0.2.0",
