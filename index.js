@@ -10,9 +10,8 @@ const compression = require("compression");
 const app = connect();
 
 let player = omx('./audio/example.mp3','local',true,null,true);
-const togglePlayer = () => { if(player) player.play(); };
 setTimeout(() => {
-  togglePlayer();
+  player.pause();
 }, 10000);
 
 const PORT = 4200;
@@ -51,18 +50,21 @@ exports.start = function(options, _onStarted) {
     
     // Listening message receiving event by client
     connection.on('message', (message) => {
-      togglePlayer();
-      if (message.type === 'utf8') {
-        console.log('Received Message: ' + message.utf8Data);
+      let m = message.utf8Data;
+      let playing = player.running;
+      if(m == 'play' && !playing) {
+        player.play();
       }
-      else if (message.type === 'binary') {
-        console.log('Received Binary Message of ' + message.binaryData.length + ' bytes');
+      else if (m == 'pause' && playing) {
+        player.pause();
       }
-      // Sending message to client
-      connection.sendUTF('Toggled the alarm!');
+      console.log('Received Message: ' + m);
+
+      // Sending response to client's message
+      connection.sendUTF('Alarm was previously ' + (playing ? 'playing' : 'paused') +
+        ' and now is ' + (player.running ? 'playing' : 'paused'));
     });
     
-    // listening for connection close event
     connection.on('close', (reasonCode, description) => {
       console.log('Peer ' + connection.remoteAddress + ' disconnected at : ', new Date());
     });
