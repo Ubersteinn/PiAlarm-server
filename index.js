@@ -49,21 +49,17 @@ exports.start = function(options, _onStarted) {
     var connection = request.accept('echo-protocol', request.origin);
     console.log('Connection created at : ', new Date());
     
-    // listening message receiving event by client
+    // Listening message receiving event by client
     connection.on('message', (message) => {
       togglePlayer();
       if (message.type === 'utf8') {
         console.log('Received Message: ' + message.utf8Data);
-        
-        // Sending message to client
-        connection.sendUTF(message.utf8Data);
       }
       else if (message.type === 'binary') {
         console.log('Received Binary Message of ' + message.binaryData.length + ' bytes');
-        
-        // Sending message to client in binary form
-        connection.sendBytes(message.binaryData);
       }
+      // Sending message to client
+      connection.sendUTF('Toggled the alarm!');
     });
     
     // listening for connection close event
