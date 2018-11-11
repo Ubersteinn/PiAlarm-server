@@ -45,14 +45,31 @@ exports.start = function(options, _onStarted) {
   );
   
   const playerServer = new websocket.server({ httpServer: server, port: 4201 });
-  playerServer.on('connection', ws => {
-    ws.on('message', message => {
+  playerServer.on('request', (request) => {
+    var connection = request.accept('echo-protocol', request.origin);
+    console.log('Connection created at : ', new Date());
+    
+    // listening message receiving event by client
+    connection.on('message', (message) => {
       togglePlayer();
-      console.log('Toggling player');
-      console.log(`Received message => ${message}`)
-    })
-    ws.send('Welcome!');
-    console.log('Connection!');
+      if (message.type === 'utf8') {
+        console.log('Received Message: ' + message.utf8Data);
+        
+        // Sending message to client
+        connection.sendUTF(message.utf8Data);
+      }
+      else if (message.type === 'binary') {
+        console.log('Received Binary Message of ' + message.binaryData.length + ' bytes');
+        
+        // Sending message to client in binary form
+        connection.sendBytes(message.binaryData);
+      }
+    });
+    
+    // listening for connection close event
+    connection.on('close', (reasonCode, description) => {
+      console.log('Peer ' + connection.remoteAddress + ' disconnected at : ', new Date());
+    });
   });
 
   return server;
